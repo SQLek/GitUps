@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name lab.sqlek.org;
+    server_name lab.sqlek.org compute.home;
     return 301 https://$host$request_uri;
 }
 
@@ -10,6 +10,21 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/lab.sqlek.org/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/lab.sqlek.org/privkey.pem;
+
+    root /var/www/lab.sqlek.org;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name compute.home;
+
+    ssl_certificate /etc/ssl/private/compute.home+1.pem;
+    ssl_certificate_key /etc/ssl/private/compute.home+1-key.pem;
 
     root /var/www/lab.sqlek.org;
     index index.html;

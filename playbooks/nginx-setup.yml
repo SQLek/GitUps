@@ -10,7 +10,7 @@
         certbot_install_method: package
         certbot_auto_renew: true
         certbot_auto_renew_user: root
-        certbot_admin_email: "{{ vault_certbot_email }}"
+        certbot_admin_email: "{{ certbot_email }}"
         certbot_create_if_missing: true
         certbot_certs:
           - domains:
@@ -58,6 +58,15 @@
         owner: www-data
         group: www-data
         mode: '0644'
+
+    - name: Copy LAN SSL certificates
+      copy:
+        src: "{{ item }}"
+        dest: /etc/ssl/private/
+        owner: root
+        group: root
+        mode: '0600'
+      loop: "{{ lan_cert_sources }}"
 
     - name: Create Nginx server block
       template:
