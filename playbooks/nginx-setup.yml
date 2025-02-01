@@ -1,0 +1,91 @@
+---
+- import_playbook: ufw-setup.yml
+
+- name: Setup Nginx and Certbot
+  hosts: all
+  become: yes
+  roles:
+    - role: geerlingguy.certbot
+      vars:
+        certbot_install_method: package
+        certbot_auto_renew: true
+        certbot_auto_renew_user: root
+        certbot_admin_email: "{{ vault_certbot_email }}"
+        certbot_create_if_missing: true
+        certbot_certs:
+          - domains:
+              - lab.sqlek.org
+            plugin: nginx
+            redirect: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+      notify:
+        - enable nginx
+        - start nginx
+
+    - name: Allow HTTP traffic
+      ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+
+    - name: Allow HTTPS traffic
+      ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+
+    - name: Create web directory
+      file:
+        path: /var/www/lab.sqlek.org
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy local HTML files to server
+      copy:
+        src: ~/Lab-Site/dist/
+        dest: /var/www/lab.sqlek.org/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create Nginx server block
+      template:
+        src: nginx-site.conf.j2
+        dest: /etc/nginx/sites-available/lab.sqlek.org.conf
+      notify:
+        - reload nginx
+
+    - name: Enable site configuration
+      file:
+        src: /etc/nginx/sites-available/lab.sqlek.org.conf
+        dest: /etc/nginx/sites-enabled/lab.sqlek.org.conf
+        state: link
+      notify:
+        - reload nginx
+
+  handlers:
+    - name: enable nginx
+      systemd:
+        name: nginx
+        enabled: yes
+
+    - name: start nginx
+      systemd:
+        name: nginx
+        state: started
+
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded 

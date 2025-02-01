@@ -1,0 +1,25 @@
+---
+- name: Configure UFW firewall
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install UFW
+      apt:
+        name: ufw
+        state: present
+        update_cache: yes
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Enable UFW service
+      systemd:
+        name: ufw
+        state: started
+        enabled: yes 
