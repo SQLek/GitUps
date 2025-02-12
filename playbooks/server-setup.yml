@@ -1,0 +1,3 @@
+---
+- import_playbook: ufw-setup.yml
+- import_playbook: nginx-setup.yml
