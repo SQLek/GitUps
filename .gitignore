@@ -1,0 +1,6 @@
+# Local configurations
+/inventory.ini
+!/inventory.sample.ini
+
+host_vars/*.yml
+!host_vars/*.sample.yml
