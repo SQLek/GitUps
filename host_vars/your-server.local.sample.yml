@@ -1,0 +1,7 @@
+lan_cert_sources:
+  - "~/.ssh/compute.home+1.pem"
+  - "~/.ssh/compute.home+1-key.pem"
+
+certbot_email: john@example.com
+
+ansible_python_interpreter: /usr/bin/python3
