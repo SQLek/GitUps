@@ -5,3 +5,5 @@ lan_cert_sources:
 certbot_email: john@example.com
 
 ansible_python_interpreter: /usr/bin/python3
+
+mysql_root_password: "your_mariadb_root_password_here"

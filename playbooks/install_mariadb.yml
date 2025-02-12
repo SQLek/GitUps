@@ -1,0 +1,48 @@
+---
+- name: Install MariaDB and Adminer
+  hosts: all
+  become: true
+
+  tasks:
+    # Install MariaDB
+    - name: Install MariaDB server
+      apt:
+        name: mariadb-server
+        state: present
+        update_cache: yes
+
+    - name: Ensure MariaDB is running and enabled
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Secure MySQL installation
+      community.mysql.mysql_secure_installation:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        root_password: "{{ mysql_root_password }}"
+        remove_anonymous_users: yes
+        remove_test_db: yes
+        login_password: "{{ mysql_root_password }}"
+
+    # Install Adminer
+    - name: Install Apache and PHP
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apache2
+        - php
+        - php-mysql
+
+    - name: Download Adminer
+      get_url:
+        url: https://www.adminer.org/latest.php
+        dest: /var/www/html/adminer.php
+        mode: '0644'
+
+    - name: Ensure Apache is running and enabled
+      service:
+        name: apache2
+        state: started
+        enabled: yes 
